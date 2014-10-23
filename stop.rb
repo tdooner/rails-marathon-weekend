@@ -22,17 +22,17 @@ tags = [
 servers = []
 
 tags.each do |h|
-  result = connection.servers.all('tag-value' => h[:tag], 'instance-state-name' => 'stopped')
+  result = connection.servers.all('tag-value' => h[:tag], 'instance-state-name' => 'running')
   servers += result
-  puts "  found #{result.length} stopped #{h[:name]} instances"
+  puts "  found #{result.length} running #{h[:name]} instances"
 end
 
 stop = 'n'
-puts 'Start them now? (y/n): '
+puts 'Shut down now? (y/n): '
 
 if gets.chomp == 'y'
   servers.each do |server|
-    puts "Starting server #{server.id}..."
-    server.start
+    puts "Stopping server #{server.id}..."
+    server.stop
   end
 end
