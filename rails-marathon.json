@@ -1,7 +1,7 @@
 {
   "id": "rails-marathon-test",
   "cmd": "bundle exec rails server",
-  "cpus": 1,
+  "cpus": 0.2,
   "mem": 512,
   "instances": 2,
   "container": {
