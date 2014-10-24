@@ -1,0 +1,27 @@
+{
+  "id": "rails-marathon-test",
+  "cmd": "bundle exec rails server",
+  "cpus": 1,
+  "mem": 512,
+  "instances": 2,
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "tdooner/tom-mesos:latest",
+      "network": "BRIDGE",
+      "portMappings": [
+        { "containerPort": 3000, "hostPort": 0, "protocol": "tcp"}
+      ]
+    }
+  },
+  "healthChecks": [
+    {
+      "protocol": "HTTP",
+      "portIndex": 0,
+      "path": "/",
+      "gracePeriodSeconds": 5,
+      "intervalSeconds": 20,
+      "maxConsecutiveFailures": 3
+    }
+  ]
+}
