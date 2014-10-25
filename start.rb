@@ -13,26 +13,53 @@ connection = Fog::Compute.new(
 
 puts 'Finding servers...'
 
-tags = [
-  { tag: 'Mesos-Chef-Server', name: 'Chef Server' },
-  { tag: 'Mesos-Master', name: 'Mesos Master' },
-  { tag: 'Mesos-Slave', name: 'Mesos Slave' },
-]
+tags = {
+  'Mesos-Chef-Server' => { name: 'Chef Server' },
+  'Mesos-Master' => { name: 'Mesos Master', run_chef: true },
+  'Mesos-Slave' => { name: 'Mesos Slave', run_chef: true },
+}
 
 servers = []
 
-tags.each do |h|
-  result = connection.servers.all('tag-value' => h[:tag], 'instance-state-name' => 'stopped')
+tags.each do |tag, h|
+  result = connection.servers.all('tag-value' => tag, 'instance-state-name' => 'stopped')
   servers += result
   puts "  found #{result.length} stopped #{h[:name]} instances"
 end
 
-stop = 'n'
-puts 'Start them now? (y/n): '
+$stdout.write 'Start them now? (y/n): '
 
 if gets.chomp == 'y'
+  puts "\n"
+
   servers.each do |server|
     puts "Starting server #{server.id}..."
     server.start
+  end
+
+  servers.each do |server|
+    next unless tags[server.tags['Name']][:run_chef]
+
+    puts "Running Chef on server: #{server.tags['Name']}"
+
+    server.wait_for(60) do |s|
+      $stdout.write '.'
+      can_ssh = Proc.new do
+        begin
+          Timeout.timeout(1) do
+            TCPSocket.new(server.public_ip_address, 22).close
+            true
+          end
+        rescue
+          false
+        end
+      end
+
+      s.state == 'running' && can_ssh.call
+    end
+
+    Net::SSH.start(server.public_ip_address, 'ubuntu') do |ssh|
+      puts ssh.exec!('sudo chef-client 2>&1 >/dev/null')
+    end
   end
 end
