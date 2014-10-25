@@ -1,0 +1,8 @@
+respawn
+
+start on runlevel [2345]
+stop on runlevel [06]
+
+script
+  env <%= @env.map { |e| e.join('=') }.join(' ') %> ruby <%= @script_path %>
+end script
