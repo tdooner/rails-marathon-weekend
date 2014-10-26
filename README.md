@@ -10,7 +10,7 @@ The goals of my weekend project were:
 
 Overall, I'm pretty impressed with how easy everything was to configure–in no small part due to Zookeeper handling all the Mesos/Marathon configuration and Chef doing the basic service discovery needed to get Marathon up-and-running. And, the decision to run Rails turned out to be completely insignificant–anything that can be run in Docker would work equally well (I just chose Rails because that's what I do at my weekday job at [Brigade](https://github.com/brigade).)
 
-Overall, this ties together the following technologies:
+This ties together the following technologies:
 * [Apache Mesos](http://mesos.apache.org/)
 * Mesosphere's [Marathon](https://mesosphere.github.io/marathon/)
 * [Consul](https://consul.io/)
