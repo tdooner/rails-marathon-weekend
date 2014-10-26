@@ -7,7 +7,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "tdooner/tom-mesos:4bd3dd1d7708835951e983d0c0ec0d28fe0bebf9",
+      "image": "tdooner/tom-mesos:8e7a5b46775295df1b13a5232dd24403ff1ce994",
       "network": "BRIDGE",
       "portMappings": [
         { "containerPort": 3000, "hostPort": 0, "protocol": "tcp"}
