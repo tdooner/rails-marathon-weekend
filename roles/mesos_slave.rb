@@ -6,7 +6,7 @@ default_attributes(
 
 run_list %w[
   docker
-  haproxy::manual
+  haproxy_wrapper::manual
   mesos_wrapper::slave
   mesos_wrapper::marathon
   consul_wrapper

@@ -10,6 +10,8 @@ DEPENDENCIES
     git: git://github.com/hw-cookbooks/haproxy.git
     revision: bd58b4d9b6812e3519ef9d96389c6f6bb8ca04c4
     branch: develop
+  haproxy_wrapper
+    path: cookbooks/haproxy_wrapper
   marathon
   mesos
     git: git://github.com/everpeace/cookbook-mesos.git
@@ -72,6 +74,8 @@ GRAPH
   haproxy (1.6.6)
     build-essential (>= 0.0.0)
     cpu (>= 0.2.0)
+  haproxy_wrapper (0.1.0)
+    haproxy (>= 0.0.0)
   homebrew (1.9.2)
   iptables (0.14.0)
   iptables-ng (2.2.0)
