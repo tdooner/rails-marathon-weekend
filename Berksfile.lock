@@ -6,6 +6,10 @@ DEPENDENCIES
   consul_wrapper
     path: cookbooks/consul_wrapper
   docker
+  haproxy
+    git: git://github.com/hw-cookbooks/haproxy.git
+    revision: bd58b4d9b6812e3519ef9d96389c6f6bb8ca04c4
+    branch: develop
   marathon
   mesos
     git: git://github.com/everpeace/cookbook-mesos.git
@@ -35,7 +39,9 @@ GRAPH
     runit (>= 0.0.0)
     yum-repoforge (>= 0.0.0)
   consul_wrapper (0.1.0)
+    ark (>= 0.0.0)
     consul (>= 0.0.0)
+  cpu (0.2.0)
   cron (1.6.1)
   device-mapper (0.1.0)
     apt (>= 0.0.0)
@@ -63,6 +69,9 @@ GRAPH
     yum (~> 3.0)
     yum-epel (>= 0.0.0)
   golang (1.3.0)
+  haproxy (1.6.6)
+    build-essential (>= 0.0.0)
+    cpu (>= 0.2.0)
   homebrew (1.9.2)
   iptables (0.14.0)
   iptables-ng (2.2.0)

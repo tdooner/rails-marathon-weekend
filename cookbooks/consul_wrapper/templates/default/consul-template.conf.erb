@@ -1,0 +1,10 @@
+respawn
+
+start on runlevel [2345]
+stop on runlevel [06]
+
+script
+  /usr/local/bin/consul-template/consul-template \
+    -consul <%= @consul_path %> \
+    -template "<%= @template %>"
+end script
