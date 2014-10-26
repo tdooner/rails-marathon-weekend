@@ -2,20 +2,22 @@
 
 This was a weekend experiment to see how easy or hard it would be to create a Mesos cluster in AWS, and deploy a Rails app to that cluster (spoiler alert: not too hard).
 
-Overall, I'm pretty impressed with how easy everything was to configure–in no small part due to Zookeeper handling all the Mesos/Marathon configuration and Chef doing the basic service discovery needed to get Marathon up-and-running.
-
-Overall, this ties together the following technologies:
-* Mesos
-* Marathon
-* Consul
-* consul-template / HAProxy
-* Chef
-
 The goals of my weekend project were:
 
 1. Run Rails on Mesos using Docker
 2. Create a system which can be scaled up and down easily
 3. Use a load-balancing approach which is suitable for a publicly-facing web application
+
+Overall, I'm pretty impressed with how easy everything was to configure–in no small part due to Zookeeper handling all the Mesos/Marathon configuration and Chef doing the basic service discovery needed to get Marathon up-and-running. And, the decision to run Rails turned out to be completely insignificant–anything that can be run in Docker would work equally well (I just chose Rails because that's what I do at my weekday job at [Brigade](https://github.com/brigade).)
+
+Overall, this ties together the following technologies:
+* [Apache Mesos](http://mesos.apache.org/)
+* Mesosphere's [Marathon](https://mesosphere.github.io/marathon/)
+* [Consul](https://consul.io/)
+* [consul-template](https://github.com/hashicorp/consul-template) / HAProxy
+* [Chef](https://www.getchef.com)
+
+The fact that I could stand up an architecture like this in a weekend (and with less than $12 in EC2 resources) is amazing to me. These projects work very well together, and the level of server automation available today is excellent. But anyway, I digress...
 
 ## Marathon
 
@@ -25,15 +27,13 @@ Apache Mesos is a cluster scheduler but the APIs it provides to schedule framewo
 
 [Singularity](https://github.com/HubSpot/Singularity) and [Aurora](http://aurora.incubator.apache.org/documentation/latest/) are two other Mesos frameworks in this space, but Marathon seemed like it would be the easiest to install (since it's also made/packaged by Mesosphere) and that it doesn't try to do too much.
 
-Marathon manages "deployments" of "applications" that have multiple "tasks" running on different mesos slaves. For now I only have one application–my Rails app. Marathon makes it ridiculously easy to scale the number of tasks running, thereby accomplishing goal #2.
+Marathon manages "deployments" of "applications" that have multiple "tasks" running on different mesos slaves. For now I only have one application–my Rails app. **Marathon makes it easy to scale the number of tasks** running, so that is a good fit for my goals.
 
-Also, Marathon allows "Event Subscribers" to receive HTTP callbacks when the state of the cluster changes. This flexibility will help with goal #3 (have a  production-ready load balancing architecture).
+Also, **Marathon allows "Event Subscribers"** to receive HTTP callbacks•• when the state of the cluster changes. This flexibility will help with goal #3 (have a  production-ready load balancing architecture).
 
 ## Starting Off Simple (v1) Architecture
 
-It took me about 4 hours to get a Mesos Cluster up-and-running, and most of that was spend on installing Chef and getting my local workstation set up.
-
-I initially attempted a simple architecture, knowing that it wouldn't accomplish the load balancing goal: **run one copy of the Rails app per marathon node.**
+It took me about 4 hours to get a Mesos Cluster up-and-running (most of that was spend on installing Chef and getting my local workstation set up). I initially attempted a simple architecture, knowing that it wouldn't accomplish the load balancing goal: **run one copy of the Rails app per marathon node.**
 
 The architecture looked like this: 
 
@@ -72,7 +72,7 @@ I still have some testing to do, but this seems to be working pretty well and re
 # Lessons Learned
 * Marathon
   1. **Only the master dispatches HTTP webhooks.** In hindsight this should have been obvious, but it is not documented anywhere. So, every marathon client needs to be started with its network-accessible IP address as a value for [`http_endpoints`](https://mesosphere.github.io/marathon/docs/event-bus.html)
-  2. **Marathon Error messages don't exist.** It's still relatively new, but there just aren't error messages if a deployment fails for some reason.
+  2. **Marathon Error messages don't exist.** It's a still relatively new project, but trying to debug why certain behavior is happening in the web UI is quite difficult.
   3. **`docker pull` takes a long time**. The first time I try to scale onto a new mesos slave, the marathon task times out because Docker is fetching ~1 GB of images. I'm not sure if there is a current way to get around this.
 * Consul
   1. In this toy architecture, *bootstrap mode* is your friend because you can reboot the singular master with impunity. But in a real architecture, you probably would not want to reboot the master and thus not run in bootstrap mode.
