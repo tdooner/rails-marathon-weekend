@@ -29,7 +29,7 @@ Apache Mesos is a cluster scheduler but the APIs it provides to schedule framewo
 
 Marathon manages "deployments" of "applications" that have multiple "tasks" running on different mesos slaves. For now I only have one application–my Rails app. **Marathon makes it easy to scale the number of tasks** running, so that is a good fit for my goals.
 
-Also, **Marathon allows "Event Subscribers"** to receive HTTP callbacks•• when the state of the cluster changes. This flexibility will help with goal #3 (have a  production-ready load balancing architecture).
+Also, **Marathon allows "Event Subscribers" to receive HTTP callbacks** when the state of the cluster changes. This flexibility will help with goal #3 (have a  production-ready load balancing architecture).
 
 ## Starting Off Simple (v1) Architecture
 
