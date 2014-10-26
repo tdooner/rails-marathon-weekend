@@ -15,6 +15,7 @@ defaults
   option dontlognull
   option httplog
   option redispatch
+  option forceclose
   balance  roundrobin
 
 listen admin
@@ -27,5 +28,5 @@ frontend http
   bind 0.0.0.0:80
   default_backend rails-marathon-test
 
-backend rails-marathon-test{{range service "rails-marathon-test"}}
+backend rails-marathon-test{{range service "<%= @host %>.rails-marathon-test"}}
   server localhost {{.Address}}:{{.Port}} weight 1 maxconn 100 check{{end}}

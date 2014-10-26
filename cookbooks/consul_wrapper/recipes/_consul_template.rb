@@ -1,7 +1,13 @@
 config_template_path = '/etc/haproxy/haproxy.cfg.ctmpl'
 
-cookbook_file config_template_path do
+template config_template_path do
+  variables({
+    host: node['fqdn'].gsub(/\./, '-')
+  })
+
   action :create
+
+  notifies :restart, 'service[consul-template]'
 end
 
 ark 'consul-template' do

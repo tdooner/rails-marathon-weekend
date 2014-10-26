@@ -41,6 +41,9 @@ helpers do
           'ID' => id,
           'Name' => name,
           'Port' => task['ports'].first,
+          'Tags' => [
+            task['host'].gsub(/\./, '-')
+          ]
         }
         next if existing.delete(id)
 
