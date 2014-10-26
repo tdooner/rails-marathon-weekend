@@ -1,4 +1,4 @@
-# Mesos, Marathon, and Rails
+# A weekend with Mesos, Marathon, and Rails
 
 This was a weekend experiment to see how easy or hard it would be to create a Mesos cluster in AWS, and deploy a Rails app to that cluster (spoiler alert: not too hard).
 
@@ -75,7 +75,8 @@ I still have some testing to do, but this seems to be working pretty well and re
   2. **Marathon Error messages don't exist.** It's a still relatively new project, but trying to debug why certain behavior is happening in the web UI is quite difficult.
   3. **`docker pull` takes a long time**. The first time I try to scale onto a new mesos slave, the marathon task times out because Docker is fetching ~1 GB of images. I'm not sure if there is a current way to get around this.
 * Consul
-  1. In this toy architecture, *bootstrap mode* is your friend because you can reboot the singular master with impunity. But in a real architecture, you probably would not want to reboot the master and thus not run in bootstrap mode.
+  1. In this toy architecture, **bootstrap mode** is your friend because you can reboot the singular master with impunity. But in a real architecture, you probably would not want to reboot the master and thus not run in bootstrap mode.
+  2. It'd be cool if there was direct integration with Marathon (or some other framework), but maybe this doesn't make sense for the project.
 
 # Running For Yourself
 If you want to try this yourself, you'll have to follow (something like) the following steps:
@@ -105,6 +106,9 @@ client_key '[your chef client.pem]'
 validation_key '[your chef validator.pem]'
 CHEF_CONFIG
 
+# you'll probably have to clean up some other hardcoded strings as well, such as the
+# Docker image name. Sorry about that. Just grep for 'tdooner'.
+
 # done!
 ```
 Here are the random scripts that exist in this directory:
@@ -112,3 +116,4 @@ Here are the random scripts that exist in this directory:
 * To spawn a mesos slave: `./create_slave.sh`.
 * To shut everything down: `ruby stop.rb`.
 * To start everything: `ruby start.rb`.
+* To deploy a new version of the Rails app, make a commit, and then: `./deploy.sh`
