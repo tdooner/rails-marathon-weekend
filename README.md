@@ -17,7 +17,7 @@ This ties together the following technologies:
 * [consul-template](https://github.com/hashicorp/consul-template) / HAProxy
 * [Chef](https://www.getchef.com)
 
-The fact that I could stand up an architecture like this in a weekend (and with less than $12 in EC2 resources) is amazing to me. These projects work very well together, and the level of server automation available today is excellent. But anyway, I digress...
+The fact that I could stand up an architecture like this in a weekend (and with less than $12 in EC2 resources) is amazing to me. These projects work very well together, and the level of server automation available today is excellent. But I digress...
 
 ## Marathon
 
@@ -53,7 +53,7 @@ This might be technically possible with SmartStack (though no solution comes to 
 
 #### ...Enter Consul
 
-Consul is a relatively new technology made by the Hashicorp folks to be a Swiss Army Knife of service discovery. Sporting both a DNS and HTTP API, Consul keeps your service definitions in-sync using a agent process which performs health checks and shares results with other agents via a intra-datacenter gossip protocol.
+Consul is a relatively new technology made by the Hashicorp folks to be a Swiss Army Knife of service discovery. Consul stores service definitions, health chechks them, and keeps them in-sync using an agent process which performs health checks and shares results with other agents via a intra-datacenter gossip protocol. And, conveniently, Consul has an HTTP and DNS API for manipulating or querying the current cluster state.
 
 This seems ripe for our use case. It is easy to add new services (`PUT /v1/agent/service/register`) and manage them once they are added. This means we can write a [relatively simple daemon](https://github.com/tdooner/tom-mesos/blob/master/ruby-configure-consul/app.rb) that updates Consul whenever the Marathon state changes. (This script receives Marathon's event subscriber HTTP callbacks.)
 
@@ -63,20 +63,26 @@ There was just one last bump: **consul will return *all* nodes in a datacenter b
 
 So, that brings us to the Sunday-afternoon architecture:
 
-## "Basically there" (v2) Architecture
+## "Good enough" (v2) Architecture
 
 ![](https://docs.google.com/drawings/d/1B_uVfwYkwrHFSC0TkT-L2iuco9eFACncn1QuT-xhUDQ/pub?w=802&h=530)
 
-I still have some testing to do, but this seems to be working pretty well and resilient to slaves coming into and out of the cluster.
+I still have some testing to do, but this seems to be working pretty well and resilient to slaves coming into and out of the cluster. It meets my three goals, but there is definitely room for improvement. If/when I return to this project, my to-do list is something like:
+
+* Add another service to make things harder on the inter-container linking / discovery side
+* Perhaps add a non-mesos MySQL cluster or something, and try running a more-complicated Rails app
+* Improve security
 
 # Lessons Learned
 * Marathon
   1. **Only the master dispatches HTTP webhooks.** In hindsight this should have been obvious, but it is not documented anywhere. So, every marathon client needs to be started with its network-accessible IP address as a value for [`http_endpoints`](https://mesosphere.github.io/marathon/docs/event-bus.html)
-  2. **Marathon Error messages don't exist.** It's a still relatively new project, but trying to debug why certain behavior is happening in the web UI is quite difficult.
-  3. **`docker pull` takes a long time**. The first time I try to scale onto a new mesos slave, the marathon task times out because Docker is fetching ~1 GB of images. I'm not sure if there is a current way to get around this.
+  2. **Marathon Error messages don't exist in the web UI.** It's a still relatively new project, but trying to debug why certain behavior is happening in the web UI is quite difficult. Syslog helps a lot.
+  3. **`docker pull` takes a long time.** The first time I try to scale onto a new mesos slave, the marathon task times out because Docker is fetching ~1 GB of images. I'm not sure if there is a current way to get around this.
 * Consul
   1. In this toy architecture, **bootstrap mode** is your friend because you can reboot the singular master with impunity. But in a real architecture, you probably would not want to reboot the master and thus not run in bootstrap mode.
-  2. It'd be cool if there was direct integration with Marathon (or some other framework), but maybe this doesn't make sense for the project.
+  2. It'd be cool if there was direct integration with Marathon (or some other framework) so the Ruby middle layer didn't need to exist.
+* Consul Template
+  1. **Better querying options** in templates would be cool, specifically a way to query the local agent instead of the entire cluster. (But I do admit this is a pretty uncommon use-case.)
 
 # Running For Yourself
 If you want to try this yourself, you'll have to follow (something like) the following steps:
@@ -107,7 +113,7 @@ validation_key '[your chef validator.pem]'
 CHEF_CONFIG
 
 # you'll probably have to clean up some other hardcoded strings as well, such as the
-# Docker image name. Sorry about that. Just grep for 'tdooner'.
+# Docker image name and various AWS identifiers. Sorry about that.
 
 # done!
 ```
